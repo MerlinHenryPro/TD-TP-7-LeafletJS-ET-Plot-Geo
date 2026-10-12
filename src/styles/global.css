@@ -1,1 +1,205 @@
 @import "tailwindcss";
+
+:root {
+	--ink: #17333a;
+	--muted: #607278;
+	--paper: #f5f2e9;
+	--panel: #fffdf8;
+	--line: #d7ddd5;
+	--teal: #1d5b63;
+	--coral: #e8754f;
+	font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+	color: var(--ink);
+	background: var(--paper);
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	min-width: 320px;
+	background:
+		radial-gradient(circle at 90% 0%, rgba(232, 117, 79, 0.13), transparent 28rem),
+		linear-gradient(135deg, rgba(29, 91, 99, 0.06), transparent 42rem),
+		var(--paper);
+}
+
+.page-shell {
+	width: min(1120px, calc(100% - 40px));
+	margin: 0 auto;
+	padding: 72px 0 96px;
+}
+
+.intro {
+	max-width: 760px;
+	padding: 32px 0 84px;
+}
+
+.eyebrow,
+.section-number {
+	margin: 0 0 14px;
+	color: var(--coral);
+	font-size: 0.76rem;
+	font-weight: 700;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+}
+
+h1,
+h2 {
+	margin: 0;
+	font-family: Georgia, serif;
+	font-weight: 400;
+	letter-spacing: 0;
+}
+
+h1 {
+	max-width: 680px;
+	font-size: clamp(2.8rem, 7vw, 5.8rem);
+	line-height: 0.98;
+}
+
+.lede {
+	max-width: 570px;
+	margin: 28px 0 0;
+	color: var(--muted);
+	font-size: 1.1rem;
+	line-height: 1.65;
+}
+
+.section-block {
+	margin-top: 30px;
+	padding: 38px;
+	border: 1px solid var(--line);
+	background: rgba(255, 253, 248, 0.78);
+	box-shadow: 0 18px 50px rgba(23, 51, 58, 0.06);
+}
+
+.section-heading {
+	max-width: 720px;
+	margin-bottom: 28px;
+}
+
+.section-heading h2 {
+	font-size: clamp(1.8rem, 4vw, 3rem);
+	line-height: 1.1;
+}
+
+.section-heading > p:last-child {
+	margin: 14px 0 0;
+	color: var(--muted);
+	line-height: 1.6;
+}
+
+.plot-shell {
+	width: 100%;
+	min-height: 260px;
+	overflow-x: auto;
+}
+
+#population-plot {
+	min-height: 680px;
+}
+
+#population-plot svg {
+	min-width: 820px;
+}
+
+.plot-shell figure {
+	margin: 0;
+}
+
+.plot-shell svg {
+	display: block;
+	max-width: 100%;
+	height: auto;
+	font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+}
+
+.plot-shell figcaption {
+	color: var(--muted);
+	font-size: 0.88rem;
+}
+
+.map {
+	height: 520px;
+	width: 100%;
+	border: 1px solid var(--line);
+	background: #dce9e4;
+}
+
+.map-note,
+.result-summary {
+	margin: 12px 0 0;
+	color: var(--muted);
+	font-size: 0.86rem;
+}
+
+.controls {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: 16px;
+	margin-bottom: 28px;
+}
+
+.controls label {
+	display: grid;
+	gap: 8px;
+	color: var(--muted);
+	font-size: 0.82rem;
+	font-weight: 700;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+.controls select {
+	width: 100%;
+	min-height: 44px;
+	padding: 0 12px;
+	border: 1px solid #aebdb9;
+	border-radius: 2px;
+	color: var(--ink);
+	background: var(--panel);
+	font: inherit;
+	font-size: 0.95rem;
+	letter-spacing: 0;
+	text-transform: none;
+}
+
+.controls select:focus-visible,
+.leaflet-container:focus-visible {
+	outline: 3px solid rgba(232, 117, 79, 0.5);
+	outline-offset: 3px;
+}
+
+@media (max-width: 700px) {
+	.page-shell {
+		width: min(100% - 24px, 1120px);
+		padding-top: 36px;
+	}
+
+	.intro {
+		padding-bottom: 48px;
+	}
+
+	.section-block {
+		padding: 22px 16px;
+	}
+
+	.controls {
+		grid-template-columns: 1fr;
+	}
+
+	.map {
+		height: 420px;
+	}
+
+	#population-plot {
+		min-height: 540px;
+	}
+
+	#population-plot svg {
+		min-width: 680px;
+	}
+}

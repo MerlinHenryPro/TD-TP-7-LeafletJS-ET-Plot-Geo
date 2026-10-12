@@ -1,0 +1,37 @@
+[
+  {
+    "nom": "Université Marie et Louis Pasteur",
+    "ville": "Besançon",
+    "type": "Université",
+    "latitude": 47.2456,
+    "longitude": 5.9851
+  },
+  {
+    "nom": "Université de Bourgogne",
+    "ville": "Dijon",
+    "type": "Université",
+    "latitude": 47.3125,
+    "longitude": 5.0697
+  },
+  {
+    "nom": "Université de Strasbourg",
+    "ville": "Strasbourg",
+    "type": "Université",
+    "latitude": 48.5803,
+    "longitude": 7.7663
+  },
+  {
+    "nom": "Université de Lorraine",
+    "ville": "Nancy",
+    "type": "Université",
+    "latitude": 48.6486,
+    "longitude": 6.1618
+  },
+  {
+    "nom": "Université de Franche-Comté - site de Montbéliard",
+    "ville": "Montbéliard",
+    "type": "IUT",
+    "latitude": 47.5096,
+    "longitude": 6.7986
+  }
+]

@@ -1,21 +1,134 @@
 ---
 import PlotFigure from "../components/PlotFigure.astro";
+import LeafletMap from "../components/LeafletMap.astro";
 import Layout from "../layouts/Layout.astro";
 import * as Plot from "@observablehq/plot";
 import penguins from "../assets/penguins.json";
+import populationMain from "../assets/populationMain.json";
+
+const listePeriode = [...new Set(populationMain.map((d) => d.Période))].sort().reverse();
+const listeSexe = [...new Set(populationMain.map((d) => d.Sexe))];
+const listeAge = [...new Set(populationMain.map((d) => d["Âge"]))];
 ---
 
 <Layout>
-  <h1 class="text-2xl">Test Astro et Plot (Observablehq)</h1>
-  <PlotFigure
-    options={{
-      marks: [
-        Plot.dot(penguins, {
-          x: "culmen_length_mm",
-          y: "culmen_depth_mm",
-          stroke: "species",
-        }),
-      ],
-    }}
-  />
+  <main class="page-shell">
+    <header class="intro">
+      <p class="eyebrow">TD 7</p>
+      <h1>Visualisation de données</h1>
+    </header>
+
+    <section class="section-block" aria-labelledby="penguins-title">
+      <div class="section-heading">
+        <p class="section-number">01 / Plot</p>
+        <h2 id="penguins-title">Mesurer les manchots</h2>
+      </div>
+      <PlotFigure
+        options={{
+          title: "Mesures du culmen chez les manchots",
+          caption: "Figure 1. Relation entre la longueur et la profondeur du culmen.",
+          ariaLabel: "Nuage de points comparant la longueur et la profondeur du culmen par espèce.",
+          height: 420,
+          marginLeft: 64,
+          marginBottom: 56,
+          x: { label: "Longueur du culmen (mm)" },
+          y: { label: "Profondeur du culmen (mm)" },
+          color: { legend: true },
+          marks: [
+            Plot.dot(penguins, { x: "culmen_length_mm", y: "culmen_depth_mm", stroke: "species", fill: "species", tip: true }),
+            Plot.frame(),
+          ],
+        }}
+      />
+    </section>
+
+    <section class="section-block map-section" aria-labelledby="map-title">
+      <div class="section-heading">
+        <p class="section-number">02 / Leaflet</p>
+        <h2 id="map-title">Repérer les établissements</h2>
+      </div>
+      <LeafletMap />
+    </section>
+
+    <section class="section-block" aria-labelledby="population-title">
+      <div class="section-heading">
+        <p class="section-number">03 / GeoJSON + Plot</p>
+        <h2 id="population-title">Explorer une population</h2>
+      </div>
+      <div class="controls" aria-label="Paramètres de la visualisation de population">
+        <label for="periode">Année<select id="periode">
+          {listePeriode.map((p, i) => <option selected={i === 0}>{p}</option>)}
+        </select></label>
+        <label for="sexe">Sexe<select id="sexe">
+          {listeSexe.map((s, i) => <option selected={i === 0}>{s}</option>)}
+        </select></label>
+        <label for="age">Âge<select id="age">
+          {listeAge.map((a, i) => <option selected={i === 0} value={a}>{a.trim()}</option>)}
+        </select></label>
+      </div>
+      <div id="population-plot" class="plot-shell" role="img" aria-label="Graphique de la population sélectionnée"></div>
+      <p id="population-summary" class="result-summary" aria-live="polite"></p>
+    </section>
+  </main>
 </Layout>
+
+<script>
+  import * as Plot from "@observablehq/plot";
+  import populationMain from "../assets/populationMain.json";
+  import departments from "../assets/departements.geojson.json";
+
+  const yearSelect = document.querySelector<HTMLSelectElement>("#periode");
+  const sexSelect = document.querySelector<HTMLSelectElement>("#sexe");
+  const ageSelect = document.querySelector<HTMLSelectElement>("#age");
+  const plotContainer = document.querySelector<HTMLDivElement>("#population-plot");
+  const summary = document.querySelector<HTMLParagraphElement>("#population-summary");
+
+  function renderPopulation() {
+    if (!yearSelect || !sexSelect || !ageSelect || !plotContainer || !summary) return;
+
+    const selected = populationMain.filter((row) =>
+      row.Période === Number(yearSelect.value) &&
+      row.Sexe === sexSelect.value &&
+      row["Âge"] === ageSelect.value &&
+      row["Niveau Géo"] === "Département" &&
+      row["Catégorie de population"] === "Total" &&
+      row["Statut conjugal"] === "Total" &&
+      row["Mesure du recensement "] === "Population" &&
+      row["Statut d'emploi variable selon l'enquête"] === "Total"
+    );
+
+    const valuesByDepartment = new Map(selected.map((row) => [row.Géographie, row.Valeur]));
+    const mappedDepartments = {
+      type: "FeatureCollection" as const,
+      features: departments.features.map((feature) => ({
+        ...feature,
+        properties: {
+          ...feature.properties,
+          value: valuesByDepartment.get(feature.properties.nom) ?? null,
+        },
+      })),
+    };
+
+    plotContainer.replaceChildren(Plot.plot({
+      title: "Population par département",
+      subtitle: `${sexSelect.value}, ${ageSelect.value.trim()}, ${yearSelect.value}`,
+      caption: "Figure 2. Population départementale selon les trois critères sélectionnés.",
+      ariaLabel: `Carte de la population par département pour ${sexSelect.value}, ${ageSelect.value.trim()} et ${yearSelect.value}.`,
+      width: 1000,
+      height: 680,
+      projection: { type: "mercator", domain: mappedDepartments, inset: 24 },
+      color: { scheme: "YlOrRd", label: "Population", legend: true },
+      marks: [
+        Plot.geo(mappedDepartments, { fill: "value", stroke: "#fffdf8", strokeWidth: 0.6, tip: true }),
+      ],
+    }));
+
+    const total = selected.reduce((sum, row) => sum + row.Valeur, 0);
+    summary.textContent = selected.length > 0
+      ? `${selected.length} départements affichés, pour ${total.toLocaleString("fr-FR")} personnes.`
+      : "Aucune donnée pour cette sélection.";
+  }
+
+  [yearSelect, sexSelect, ageSelect].forEach((select) => select?.addEventListener("change", renderPopulation));
+  renderPopulation();
+</script>

@@ -1,0 +1,54 @@
+---
+import "leaflet/dist/leaflet.css";
+import * as L from "leaflet";
+import establishments from "../assets/listeEtablissements.json";
+import departments from "../assets/departements.geojson.json";
+---
+
+<div
+  id="map"
+  class="map"
+  role="region"
+  aria-label="Carte des établissements universitaires en Bourgogne-Franche-Comté et dans les régions voisines"
+></div>
+
+<script>
+  import L from "leaflet";
+  import establishments from "../assets/listeEtablissements.json";
+  import departments from "../assets/departements.geojson.json";
+
+  const mapElement = document.querySelector<HTMLDivElement>("#map");
+
+  if (mapElement) {
+    const map = L.map(mapElement, { scrollWheelZoom: false }).setView([47.4, 6.15], 8);
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+      maxZoom: 19,
+    }).addTo(map);
+
+    const departmentLayer = L.geoJSON(departments as GeoJSON.GeoJsonObject, {
+      style: {
+        color: "#1d5b63",
+        weight: 1.5,
+        fillColor: "#8fc9b8",
+        fillOpacity: 0.2,
+      },
+      onEachFeature: (feature, layer) => {
+        const properties = feature.properties as { nom?: string; code?: string };
+        layer.bindPopup(`<strong>${properties.nom ?? "Département"}</strong><br>Code : ${properties.code ?? "-"}`);
+      },
+    }).addTo(map);
+
+    establishments.forEach((establishment) => {
+      L.marker([establishment.latitude, establishment.longitude], {
+        title: establishment.nom,
+        alt: establishment.nom,
+      })
+        .addTo(map)
+        .bindPopup(`<strong>${establishment.nom}</strong><br>${establishment.ville} · ${establishment.type}`);
+    });
+
+    map.fitBounds(departmentLayer.getBounds(), { padding: [24, 24] });
+  }
+</script>
